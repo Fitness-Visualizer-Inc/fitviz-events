@@ -1,0 +1,7 @@
+include README.md
+include LICENSE
+include pytest.ini
+recursive-include fitviz_events *.py
+recursive-exclude tests *
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
