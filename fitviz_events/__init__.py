@@ -2,7 +2,7 @@
 FitViz Events - Event publishing client for FitViz notification service.
 
 This package provides a simple interface for Flask applications to publish
-domain events to the FitViz notification service via RabbitMQ.
+domain events to the FitViz notification service via RabbitMQ or AWS SNS.
 """
 
 from fitviz_events.config import EventPublisherConfig
@@ -26,11 +26,15 @@ from fitviz_events.exceptions import (
     EventValidationError,
 )
 from fitviz_events.publisher import EventPublisher
+from fitviz_events.sns_config import SNSPublisherConfig
+from fitviz_events.sns_publisher import SNSEventPublisher
 
 __version__ = "1.0.0"
 __all__ = [
     "EventPublisher",
     "EventPublisherConfig",
+    "SNSEventPublisher",
+    "SNSPublisherConfig",
     "BaseEvent",
     "WorkoutCreatedEvent",
     "WorkoutUpdatedEvent",

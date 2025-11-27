@@ -1,6 +1,6 @@
 # FitViz Events
 
-Event publishing client library for integrating Flask applications with the FitViz notification service via RabbitMQ.
+Event publishing client library for integrating Flask applications with the FitViz notification service via RabbitMQ or AWS SNS.
 
 ## Installation
 
@@ -15,7 +15,7 @@ pip install fitviz-events[dev]
 
 ## Quick Start
 
-### Basic Usage
+### RabbitMQ Mode (On-Premise)
 
 ```python
 from fitviz_events import EventPublisher
@@ -37,6 +37,34 @@ success = publisher.publish("workout.created", {
 
 if success:
     print("Event published successfully")
+```
+
+### AWS SNS Mode (Cloud-Native)
+
+```python
+from fitviz_events import SNSEventPublisher, SNSPublisherConfig
+
+# Initialize SNS publisher
+config = SNSPublisherConfig(
+    topic_arn="arn:aws:sns:us-east-2:123456789:fitviz-domain-events",
+    aws_region="us-east-2"
+)
+
+publisher = SNSEventPublisher(
+    config=config,
+    organization_id_getter=lambda: get_current_organization_id()
+)
+
+# Publish an event
+success = publisher.publish("workout.created", {
+    "workout_id": "123",
+    "title": "Morning Yoga",
+    "duration_minutes": 60,
+    "created_by": "user_456"
+})
+
+if success:
+    print("Event published to SNS successfully")
 ```
 
 ### Flask Integration
@@ -97,7 +125,7 @@ with EventPublisher(
     })
 ```
 
-### Configuration Object
+### RabbitMQ Configuration Object
 
 ```python
 from fitviz_events import EventPublisher, EventPublisherConfig
@@ -113,6 +141,41 @@ config = EventPublisherConfig(
 )
 
 publisher = EventPublisher(config=config)
+```
+
+### SNS Configuration Object
+
+```python
+from fitviz_events import SNSEventPublisher, SNSPublisherConfig
+
+config = SNSPublisherConfig(
+    topic_arn="arn:aws:sns:us-east-2:123456789:fitviz-domain-events",
+    aws_region="us-east-2",
+    aws_access_key_id="YOUR_ACCESS_KEY",
+    aws_secret_access_key="YOUR_SECRET_KEY",
+    retry_attempts=5,
+    retry_delay=2.0,
+    enable_validation=True
+)
+
+publisher = SNSEventPublisher(config=config)
+```
+
+### SNS with LocalStack (Development)
+
+```python
+from fitviz_events import SNSEventPublisher, SNSPublisherConfig
+
+config = SNSPublisherConfig(
+    topic_arn="arn:aws:sns:us-east-2:000000000000:fitviz-domain-events",
+    aws_region="us-east-2",
+    use_localstack=True,
+    localstack_endpoint="http://localhost:4566",
+    aws_access_key_id="test",
+    aws_secret_access_key="test"
+)
+
+publisher = SNSEventPublisher(config=config)
 ```
 
 ## Supported Events
@@ -179,6 +242,8 @@ asyncio.run(publish_event())
 
 ## Configuration Options
 
+### RabbitMQ Configuration (EventPublisherConfig)
+
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `rabbitmq_url` | str | Required | RabbitMQ connection URL |
@@ -189,6 +254,21 @@ asyncio.run(publish_event())
 | `enable_validation` | bool | True | Validate events with Pydantic |
 | `connection_timeout` | int | 10 | Connection timeout (seconds) |
 | `heartbeat` | int | 600 | Heartbeat interval (seconds) |
+
+### AWS SNS Configuration (SNSPublisherConfig)
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `topic_arn` | str | Required | SNS topic ARN |
+| `aws_region` | str | "us-east-2" | AWS region for SNS service |
+| `aws_access_key_id` | str | None | AWS access key (uses boto3 defaults if None) |
+| `aws_secret_access_key` | str | None | AWS secret key (uses boto3 defaults if None) |
+| `use_localstack` | bool | False | Enable LocalStack for local development |
+| `localstack_endpoint` | str | None | LocalStack endpoint URL |
+| `retry_attempts` | int | 3 | Publish retry attempts |
+| `retry_delay` | float | 1.0 | Delay between retries (seconds) |
+| `enable_validation` | bool | True | Validate events with Pydantic |
+| `organization_id_getter` | Callable | None | Function to get current org ID |
 
 ## Error Handling
 
@@ -229,6 +309,50 @@ def worker_task():
 def handle_request():
     publisher.publish("request.received", {"path": request.path})
     return "OK"
+```
+
+## SNS Message Format
+
+When using `SNSEventPublisher`, events are published to SNS with the following structure:
+
+### Message Body
+
+```json
+{
+  "event_id": "uuid-here",
+  "event_type": "workout.created",
+  "organization_id": "org-uuid",
+  "timestamp": "2025-01-15T10:30:00Z",
+  "data": {
+    "workout_id": "123",
+    "title": "Morning Yoga"
+  }
+}
+```
+
+### Message Attributes
+
+SNS message attributes are automatically added for filtering:
+
+```json
+{
+  "event_type": {
+    "DataType": "String",
+    "StringValue": "workout.created"
+  },
+  "organization_id": {
+    "DataType": "String",
+    "StringValue": "org-uuid"
+  }
+}
+```
+
+These attributes enable SNS filter policies on subscriptions:
+
+```json
+{
+  "event_type": ["workout.created", "workout.updated"]
+}
 ```
 
 ## Development
