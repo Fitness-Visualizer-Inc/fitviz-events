@@ -28,6 +28,7 @@ setup(
     install_requires=[
         "pika>=1.3.0",
         "pydantic>=2.0.0",
+        "boto3>=1.26.0",
     ],
     extras_require={
         "dev": [
