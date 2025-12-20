@@ -66,6 +66,22 @@ class WorkoutDeletedEvent(BaseEvent):
     data: WorkoutData
 
 
+class BookingCreatedEvent(BaseEvent):
+    """Event emitted when a booking is created."""
+
+    event_type: str = "booking.created"
+
+    class BookingData(BaseModel):
+        booking_id: str
+        user_id: str
+        class_id: str
+        class_name: str
+        scheduled_time: Optional[datetime] = None
+        location: Optional[str] = None
+
+    data: BookingData
+
+
 class BookingConfirmedEvent(BaseEvent):
     """Event emitted when a booking is confirmed."""
 
@@ -179,6 +195,37 @@ class ClassScheduledEvent(BaseEvent):
     data: ClassData
 
 
+class ClassCreatedEvent(BaseEvent):
+    """Event emitted when a class is created."""
+
+    event_type: str = "class.created"
+
+    class ClassData(BaseModel):
+        class_id: str
+        class_name: str
+        trainer_id: str
+        max_slots: Optional[int] = None
+        price: Optional[float] = None
+        created_by: str
+        occurrence_count: Optional[int] = None
+
+    data: ClassData
+
+
+class ClassUpdatedEvent(BaseEvent):
+    """Event emitted when a class is updated."""
+
+    event_type: str = "class.updated"
+
+    class ClassData(BaseModel):
+        class_id: str
+        class_name: str
+        changes: Optional[Dict[str, Any]] = None
+        updated_by: str
+
+    data: ClassData
+
+
 class ClassCancelledEvent(BaseEvent):
     """Event emitted when a class is cancelled."""
 
@@ -198,12 +245,15 @@ EVENT_TYPE_MAP = {
     "workout.created": WorkoutCreatedEvent,
     "workout.updated": WorkoutUpdatedEvent,
     "workout.deleted": WorkoutDeletedEvent,
+    "booking.created": BookingCreatedEvent,
     "booking.confirmed": BookingConfirmedEvent,
     "booking.cancelled": BookingCancelledEvent,
     "membership.created": MembershipCreatedEvent,
     "membership.expired": MembershipExpiredEvent,
     "payment.completed": PaymentCompletedEvent,
     "payment.failed": PaymentFailedEvent,
+    "class.created": ClassCreatedEvent,
+    "class.updated": ClassUpdatedEvent,
     "class.scheduled": ClassScheduledEvent,
     "class.cancelled": ClassCancelledEvent,
 }
