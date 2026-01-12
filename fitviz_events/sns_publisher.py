@@ -5,6 +5,7 @@ import json
 import logging
 import threading
 import time
+from datetime import datetime
 from typing import Any, Callable, Dict, Optional
 from uuid import UUID, uuid4
 
@@ -199,7 +200,9 @@ class SNSEventPublisher:
                 "event_type": event_type,
                 "organization_id": org_id,
                 "timestamp": (
-                    validated_event.timestamp.isoformat() if validated_event else None
+                    validated_event.timestamp.isoformat()
+                    if validated_event
+                    else datetime.utcnow().isoformat()
                 ),
                 "data": data,
             }
