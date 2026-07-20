@@ -196,3 +196,7 @@ Tests are located in `tests/test_publisher.py` and cover:
 5. **Async Support**: The library provides both sync and async methods. Use `async_publish()` in async contexts (runs in thread pool executor).
 
 6. **Python Version**: Requires Python 3.9+ (uses modern type hints and dataclasses)
+
+## Branching & Merge Policy
+
+**Never squash-merge to the release branch (`main`).** Promotions to the release branch use merge commits (rebase acceptable) to preserve full history; squash flattens promoted history and is reserved for feature -> dev merges only. Enforced by the `release-branch-no-squash` repository ruleset.
