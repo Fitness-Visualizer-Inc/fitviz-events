@@ -9,6 +9,7 @@ from fitviz_events.config import EventPublisherConfig
 from fitviz_events.events import (
     BaseEvent,
     BookingCancelledEvent,
+    DevicePairedEvent,
     BookingConfirmedEvent,
     ClassCancelledEvent,
     ClassScheduledEvent,
@@ -41,6 +42,7 @@ __all__ = [
     "WorkoutDeletedEvent",
     "BookingConfirmedEvent",
     "BookingCancelledEvent",
+    "DevicePairedEvent",
     "MembershipCreatedEvent",
     "MembershipExpiredEvent",
     "PaymentCompletedEvent",
