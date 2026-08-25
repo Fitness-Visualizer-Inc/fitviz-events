@@ -7,6 +7,8 @@ domain events to the FitViz notification service via RabbitMQ or AWS SNS.
 
 from fitviz_events.config import EventPublisherConfig
 from fitviz_events.events import (
+    AppointmentCancelledEvent,
+    AppointmentCreatedEvent,
     BaseEvent,
     BookingCancelledEvent,
     BookingConfirmedEvent,
@@ -36,6 +38,8 @@ __all__ = [
     "SNSEventPublisher",
     "SNSPublisherConfig",
     "BaseEvent",
+    "AppointmentCreatedEvent",
+    "AppointmentCancelledEvent",
     "WorkoutCreatedEvent",
     "WorkoutUpdatedEvent",
     "WorkoutDeletedEvent",
