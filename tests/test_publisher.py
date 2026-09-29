@@ -148,6 +148,128 @@ class TestValidateEvent:
         event = publisher._validate_event("unknown.event", data, mock_organization_id)
         assert event is None
 
+    def test_validate_appointment_created_event(self, publisher, mock_organization_id):
+        """Test validating appointment.created event with full payload."""
+        data = {
+            "appointment_id": "appt_123",
+            "organization_id": mock_organization_id,
+            "start_time": "2025-01-15T10:00:00Z",
+            "end_time": "2025-01-15T11:00:00Z",
+            "trainer_org_user_id": "trainer_456",
+            "member_org_user_id": "member_789",
+            "organization_timezone": "America/New_York",
+            "user_id": "user_456",
+            "recipient_role": "trainer",
+            "booked_by_org_user_id": "member_789",
+        }
+        event = publisher._validate_event("appointment.created", data, mock_organization_id)
+        assert event is not None
+        assert event.event_type == "appointment.created"
+        assert event.data.booked_by_org_user_id == "member_789"
+
+    def test_validate_appointment_created_event_without_booked_by(
+        self, publisher, mock_organization_id
+    ):
+        """Test appointment.created validates when booked_by_org_user_id is absent."""
+        data = {
+            "appointment_id": "appt_123",
+            "organization_id": mock_organization_id,
+            "start_time": "2025-01-15T10:00:00Z",
+            "end_time": "2025-01-15T11:00:00Z",
+            "trainer_org_user_id": "trainer_456",
+            "member_org_user_id": "member_789",
+            "organization_timezone": "America/New_York",
+            "user_id": "user_456",
+            "recipient_role": "member",
+        }
+        event = publisher._validate_event("appointment.created", data, mock_organization_id)
+        assert event is not None
+        assert event.data.booked_by_org_user_id is None
+
+    def test_validate_appointment_created_event_missing_required_id(
+        self, publisher, mock_organization_id
+    ):
+        """Test appointment.created rejects a payload missing appointment_id."""
+        data = {
+            "organization_id": mock_organization_id,
+            "start_time": "2025-01-15T10:00:00Z",
+            "end_time": "2025-01-15T11:00:00Z",
+            "trainer_org_user_id": "trainer_456",
+            "member_org_user_id": "member_789",
+            "organization_timezone": "America/New_York",
+            "user_id": "user_456",
+            "recipient_role": "member",
+        }
+        with pytest.raises(EventValidationError):
+            publisher._validate_event("appointment.created", data, mock_organization_id)
+
+    def test_validate_appointment_cancelled_event(self, publisher, mock_organization_id):
+        """Test validating appointment.cancelled event with full payload."""
+        data = {
+            "appointment_id": "appt_123",
+            "organization_id": mock_organization_id,
+            "start_time": "2025-01-15T10:00:00Z",
+            "end_time": "2025-01-15T11:00:00Z",
+            "trainer_org_user_id": "trainer_456",
+            "member_org_user_id": "member_789",
+            "organization_timezone": "America/New_York",
+            "user_id": "user_456",
+            "recipient_role": "member",
+            "cancelled_by_org_user_id": "trainer_456",
+        }
+        event = publisher._validate_event("appointment.cancelled", data, mock_organization_id)
+        assert event is not None
+        assert event.event_type == "appointment.cancelled"
+        assert event.data.cancelled_by_org_user_id == "trainer_456"
+
+    def test_validate_appointment_cancelled_event_without_cancelled_by(
+        self, publisher, mock_organization_id
+    ):
+        """Test appointment.cancelled validates when cancelled_by_org_user_id is None."""
+        data = {
+            "appointment_id": "appt_123",
+            "organization_id": mock_organization_id,
+            "start_time": "2025-01-15T10:00:00Z",
+            "end_time": "2025-01-15T11:00:00Z",
+            "trainer_org_user_id": "trainer_456",
+            "member_org_user_id": "member_789",
+            "organization_timezone": "America/New_York",
+            "user_id": "user_456",
+            "recipient_role": "trainer",
+            "cancelled_by_org_user_id": None,
+        }
+        event = publisher._validate_event("appointment.cancelled", data, mock_organization_id)
+        assert event is not None
+        assert event.data.cancelled_by_org_user_id is None
+
+    def test_validate_appointment_cancelled_event_missing_required_id(
+        self, publisher, mock_organization_id
+    ):
+        """Test appointment.cancelled rejects a payload missing appointment_id."""
+        data = {
+            "organization_id": mock_organization_id,
+            "start_time": "2025-01-15T10:00:00Z",
+            "end_time": "2025-01-15T11:00:00Z",
+            "trainer_org_user_id": "trainer_456",
+            "member_org_user_id": "member_789",
+            "organization_timezone": "America/New_York",
+            "user_id": "user_456",
+            "recipient_role": "trainer",
+        }
+        with pytest.raises(EventValidationError):
+            publisher._validate_event("appointment.cancelled", data, mock_organization_id)
+
+    def test_appointment_event_types_registered(self):
+        """Test appointment.created and appointment.cancelled are in EVENT_TYPE_MAP."""
+        from fitviz_events.events import (
+            EVENT_TYPE_MAP,
+            AppointmentCancelledEvent,
+            AppointmentCreatedEvent,
+        )
+
+        assert EVENT_TYPE_MAP["appointment.created"] is AppointmentCreatedEvent
+        assert EVENT_TYPE_MAP["appointment.cancelled"] is AppointmentCancelledEvent
+
     def test_validation_disabled(self, rabbitmq_url, organization_id_getter, mock_organization_id):
         """Test validation disabled returns None."""
         publisher = EventPublisher(

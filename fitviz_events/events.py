@@ -258,6 +258,46 @@ class DevicePairedEvent(BaseEvent):
 
     data: DeviceData
 
+
+class AppointmentCreatedEvent(BaseEvent):
+    """Event emitted when an appointment is created."""
+
+    event_type: str = "appointment.created"
+
+    class AppointmentData(BaseModel):
+        appointment_id: str
+        organization_id: str
+        start_time: datetime
+        end_time: datetime
+        trainer_org_user_id: str
+        member_org_user_id: str
+        organization_timezone: str
+        user_id: str
+        recipient_role: str
+        booked_by_org_user_id: Optional[str] = None
+
+    data: AppointmentData
+
+
+class AppointmentCancelledEvent(BaseEvent):
+    """Event emitted when an appointment is cancelled."""
+
+    event_type: str = "appointment.cancelled"
+
+    class AppointmentData(BaseModel):
+        appointment_id: str
+        organization_id: str
+        start_time: datetime
+        end_time: datetime
+        trainer_org_user_id: str
+        member_org_user_id: str
+        organization_timezone: str
+        user_id: str
+        recipient_role: str
+        cancelled_by_org_user_id: Optional[str] = None
+
+    data: AppointmentData
+
 EVENT_TYPE_MAP = {
     "workout.created": WorkoutCreatedEvent,
     "workout.updated": WorkoutUpdatedEvent,
@@ -274,4 +314,6 @@ EVENT_TYPE_MAP = {
     "class.scheduled": ClassScheduledEvent,
     "class.cancelled": ClassCancelledEvent,
     "device.paired": DevicePairedEvent,
+    "appointment.created": AppointmentCreatedEvent,
+    "appointment.cancelled": AppointmentCancelledEvent,
 }
