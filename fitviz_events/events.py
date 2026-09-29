@@ -241,7 +241,6 @@ class ClassCancelledEvent(BaseEvent):
     data: ClassData
 
 
-
 class DevicePairedEvent(BaseEvent):
     """Event emitted when a device is paired to a user."""
 
@@ -297,6 +296,7 @@ class AppointmentCancelledEvent(BaseEvent):
         cancelled_by_org_user_id: Optional[str] = None
 
     data: AppointmentData
+
 
 EVENT_TYPE_MAP = {
     "workout.created": WorkoutCreatedEvent,
