@@ -257,6 +257,9 @@ class AppointmentCreatedEvent(BaseEvent):
         user_id: str
         recipient_role: str
         booked_by_org_user_id: Optional[str] = None
+        member_name: Optional[str] = None
+        trainer_name: Optional[str] = None
+        service: Optional[str] = None
 
     data: AppointmentData
 
@@ -277,6 +280,9 @@ class AppointmentCancelledEvent(BaseEvent):
         user_id: str
         recipient_role: str
         cancelled_by_org_user_id: Optional[str] = None
+        member_name: Optional[str] = None
+        trainer_name: Optional[str] = None
+        service: Optional[str] = None
 
     data: AppointmentData
 
