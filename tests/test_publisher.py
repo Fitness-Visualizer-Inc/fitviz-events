@@ -186,6 +186,50 @@ class TestValidateEvent:
         assert event is not None
         assert event.data.booked_by_org_user_id is None
 
+    def test_validate_appointment_created_event_with_party_names(
+        self, publisher, mock_organization_id
+    ):
+        """Test appointment.created carries the optional display names."""
+        data = {
+            "appointment_id": "appt_123",
+            "organization_id": mock_organization_id,
+            "start_time": "2025-01-15T10:00:00Z",
+            "end_time": "2025-01-15T11:00:00Z",
+            "trainer_org_user_id": "trainer_456",
+            "member_org_user_id": "member_789",
+            "organization_timezone": "America/New_York",
+            "user_id": "user_456",
+            "recipient_role": "trainer",
+            "member_name": "Jane Doe",
+            "trainer_name": "Sam Coach",
+            "service": "Personal Training",
+        }
+        event = publisher._validate_event("appointment.created", data, mock_organization_id)
+        assert event.data.member_name == "Jane Doe"
+        assert event.data.trainer_name == "Sam Coach"
+        assert event.data.service == "Personal Training"
+
+    def test_validate_appointment_created_event_names_optional(
+        self, publisher, mock_organization_id
+    ):
+        """Test appointment.created validates with names absent or None."""
+        data = {
+            "appointment_id": "appt_123",
+            "organization_id": mock_organization_id,
+            "start_time": "2025-01-15T10:00:00Z",
+            "end_time": "2025-01-15T11:00:00Z",
+            "trainer_org_user_id": "trainer_456",
+            "member_org_user_id": "member_789",
+            "organization_timezone": "America/New_York",
+            "user_id": "user_456",
+            "recipient_role": "member",
+            "member_name": None,
+        }
+        event = publisher._validate_event("appointment.created", data, mock_organization_id)
+        assert event.data.member_name is None
+        assert event.data.trainer_name is None
+        assert event.data.service is None
+
     def test_validate_appointment_created_event_missing_required_id(
         self, publisher, mock_organization_id
     ):
@@ -241,6 +285,29 @@ class TestValidateEvent:
         event = publisher._validate_event("appointment.cancelled", data, mock_organization_id)
         assert event is not None
         assert event.data.cancelled_by_org_user_id is None
+
+    def test_validate_appointment_cancelled_event_with_party_names(
+        self, publisher, mock_organization_id
+    ):
+        """Test appointment.cancelled carries the optional display names."""
+        data = {
+            "appointment_id": "appt_123",
+            "organization_id": mock_organization_id,
+            "start_time": "2025-01-15T10:00:00Z",
+            "end_time": "2025-01-15T11:00:00Z",
+            "trainer_org_user_id": "trainer_456",
+            "member_org_user_id": "member_789",
+            "organization_timezone": "America/New_York",
+            "user_id": "user_456",
+            "recipient_role": "member",
+            "cancelled_by_org_user_id": "trainer_456",
+            "member_name": "Jane Doe",
+            "trainer_name": None,
+        }
+        event = publisher._validate_event("appointment.cancelled", data, mock_organization_id)
+        assert event.data.member_name == "Jane Doe"
+        assert event.data.trainer_name is None
+        assert event.data.service is None
 
     def test_validate_appointment_cancelled_event_missing_required_id(
         self, publisher, mock_organization_id
