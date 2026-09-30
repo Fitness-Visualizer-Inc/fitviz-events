@@ -241,6 +241,23 @@ class ClassCancelledEvent(BaseEvent):
     data: ClassData
 
 
+class DevicePairedEvent(BaseEvent):
+    """Event emitted when a device is paired to a user."""
+
+    event_type: str = "device.paired"
+
+    class DeviceData(BaseModel):
+        device_id: str
+        device_name: str
+        device_identifier: str
+        session_id: str
+        user_id: str
+        paired_by_user_id: str
+        recipient_ids: list[str] = Field(default_factory=list)
+
+    data: DeviceData
+
+
 class AppointmentCreatedEvent(BaseEvent):
     """Event emitted when an appointment is created."""
 
@@ -302,6 +319,7 @@ EVENT_TYPE_MAP = {
     "class.updated": ClassUpdatedEvent,
     "class.scheduled": ClassScheduledEvent,
     "class.cancelled": ClassCancelledEvent,
+    "device.paired": DevicePairedEvent,
     "appointment.created": AppointmentCreatedEvent,
     "appointment.cancelled": AppointmentCancelledEvent,
 }
