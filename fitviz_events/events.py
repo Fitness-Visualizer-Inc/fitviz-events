@@ -203,7 +203,8 @@ class ClassCreatedEvent(BaseEvent):
     class ClassData(BaseModel):
         class_id: str
         class_name: str
-        trainer_id: str
+        trainer_id: Optional[str] = None
+        trainer_name: Optional[str] = None
         max_slots: Optional[int] = None
         price: Optional[float] = None
         created_by: str
@@ -226,6 +227,14 @@ class ClassUpdatedEvent(BaseEvent):
     data: ClassData
 
 
+class CancelledOccurrence(BaseModel):
+    """One future occurrence removed by a class cancellation."""
+
+    occurrence_id: str
+    start_time: datetime
+    end_time: Optional[datetime] = None
+
+
 class ClassCancelledEvent(BaseEvent):
     """Event emitted when a class is cancelled."""
 
@@ -234,7 +243,14 @@ class ClassCancelledEvent(BaseEvent):
     class ClassData(BaseModel):
         class_id: str
         class_name: str
-        scheduled_time: datetime
+        # Kept for producers that still send it.
+        scheduled_time: Optional[datetime] = None
+        # The occurrence the member was booked on, or the next upcoming one for a series.
+        start_time: Optional[datetime] = None
+        end_time: Optional[datetime] = None
+        trainer_name: Optional[str] = None
+        # Future occurrences only.
+        cancelled_occurrences: Optional[list[CancelledOccurrence]] = None
         cancellation_reason: str
         affected_users: list[str] = Field(default_factory=list)
 
