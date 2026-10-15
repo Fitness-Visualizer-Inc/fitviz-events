@@ -32,7 +32,7 @@ from fitviz_events.publisher import EventPublisher
 from fitviz_events.sns_config import SNSPublisherConfig
 from fitviz_events.sns_publisher import SNSEventPublisher
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 __all__ = [
     "EventPublisher",
     "EventPublisherConfig",

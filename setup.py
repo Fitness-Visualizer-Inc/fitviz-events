@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="fitviz-events",
-    version="1.0.0",
+    version="1.1.0",
     author="FitViz Team",
     author_email="dev@fitviz.com",
     description="Event publishing client for FitViz notification service",
